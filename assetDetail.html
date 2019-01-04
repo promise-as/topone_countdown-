@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no" />  <!--去除iphone微信下浏览器中数字下划线-->
+    <title>资产明细</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div class="crunchies">
+        <ul class="assetDetail">
+            <li v-for="(item,index) in asset_list"  @click="orderId(index)">
+                <div class="assetDetail-item">
+                    <div class="assetDetail-content">
+                        <div class="assetDetail-text">
+                            {{item.text}}
+                        </div>
+                        <div class="assetDetail-time">
+                            {{item.time}}
+                        </div>
+                    </div>
+                    <div class="assetDetail-change">
+                        <span :class="item.sign?'red':''">+180</span>
+                    </div>
+                </div>
+                <div class="assetDetail-order" style="display: none">
+                    <div class="assetDetail-order-text">
+                        订单编号：{{item.asset_id}}
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+    <div class="confirm" v-show="isDialog" v-html="alertText"></div>
+</div>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+    var app=new Vue({
+        el:"#app",
+        data:{
+            asset_list:[
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:false,
+                    num:"10"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:false,
+                    num:"180"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:true,
+                    num:"580"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:false,
+                    num:"1800"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:false,
+                    num:"10"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:false,
+                    num:"180"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:true,
+                    num:"580"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:false,
+                    num:"1800"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:false,
+                    num:"10"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:false,
+                    num:"180"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:true,
+                    num:"580"
+                },
+                {
+                    asset_id:1,
+                    text:"买跌100BTH,获得185.7BTH",
+                    time:"2013-05-06 12:12:12",
+                    sign:false,
+                    num:"1800"
+                },
+            ],
+            asset_html:'',
+            isDialog:false,
+            alertText:"",
+            isLoad:false,
+            state:0,
+            refresh: new Refresh()
+        },
+        mounted:function(){
+            //滚动事件触发
+            var that=this;
+            window.addEventListener('scroll', function(){
+                if(that.refresh.isBottom() && !that.refresh.isRefreshing()) {
+                    that.refresh.allowRefresh();
+                    that.flag = false;
+                    dialog(that,'<i class="icon icon-load"></i> 正在加载...');
+                    axios.post('url').then(function (response) {
+                        that.refresh.forbidRefresh();
+                        var refresh_list = [
+                            {
+                                asset_id: 1,
+                                text: "333333刷新买跌100BTH,获得185.7BTH",
+                                time: "2013-05-06 12:12:12",
+                                sign: false,
+                                num: "10"
+                            },
+                            {
+                                asset_id: 1,
+                                text: "刷新买跌100BTH,获得185.7BTH",
+                                time: "2013-05-06 12:12:12",
+                                sign: false,
+                                num: "180"
+                            },
+                            {
+                                asset_id: 1,
+                                text: "刷新买跌100BTH,获得185.7BTH",
+                                time: "2013-05-06 12:12:12",
+                                sign: true,
+                                num: "580"
+                            },
+                            {
+                                asset_id: 1,
+                                text: "刷新买跌100BTH,获得185.7BTH",
+                                time: "2013-05-06 12:12:12",
+                                sign: false,
+                                num: "1800"
+                            }
+                        ]; //获取的数据
+                        that.asset_list = that.asset_list.concat(refresh_list);
+                        dialog(that,'<i class="icon icon-success"></i> 加载成功');
+                    }).catch(function (error) {
+                        // 弹框提示
+                        dialog(that,error);
+                    });
+                }
+            });
+        },
+        methods:{
+            setState:function(index) {
+                this.state=index;
+                this.isLoad=true;
+            },
+            orderId:function (index) {
+                var el=document.getElementsByClassName("assetDetail-order")[index];
+                el.style.display="block";
+            }
+        }
+    });
+
+</script>
+</body>
+</html>

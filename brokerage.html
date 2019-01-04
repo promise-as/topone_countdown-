@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no" />  <!--去除iphone微信下浏览器中数字下划线-->
+    <title>我的佣金</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+</head>
+<body class="bg-fa">
+<div id="app" v-cloak>
+    <div class="brokerage">
+        <div class="my-list">
+            <ul>
+                <li v-for="(item,index) in broker_list" @click="brokerage(index,item.id,$event)">
+                    <div class="brokerage-item">
+                        <div class="my-list-item my-list-text">
+                            <span>{{item.month}}返佣</span>
+                        </div>
+                        <div class="my-list-item my-balance">{{item.money}}BTH</div>
+                        <span class="my-caret moving"></span>
+                    </div>
+                    <div v-show="isShow[index]" class="brokerage-list">
+                        <div class="crunchies">
+                            <ul class="assetDetail">
+                                <li v-for="detail in Detail(item.id)">
+                                    <div class="assetDetail-item">
+                                        <div class="assetDetail-content">
+                                            <div class="assetDetail-text">
+                                                {{detail.name}}消费{{detail.num}}BTH
+                                            </div>
+                                            <div class="assetDetail-time">
+                                                {{detail.time}}
+                                            </div>
+                                        </div>
+                                        <div class="assetDetail-change">
+                                            <span class="red">{{detail.profit}}</span>
+                                        </div>
+                                    </div>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+    var app = new Vue({
+        el: '#app',
+        data: {
+            isShow: [false, false, false, false, false, false, false, false, false, false, false, false],
+            broker_list:[
+                {
+                    month:"十二月",
+                    id:"1",
+                    money:"500"
+                },
+                {
+                    month:"十一月",
+                    id:"2",
+                    money:"500"
+                },
+                {
+                    month:"十月",
+                    id:"3",
+                    money:"500"
+                },
+                {
+                    month:"九月",
+                    id:"4",
+                    money:"500"
+                }
+            ],
+            detail_list:{}
+        },
+        methods:{
+            Detail: function (id) {
+                return this.detail_list['' + id] ? this.detail_list['' + id] : [];
+            },
+            brokerage:function (index,id,event) {
+                Vue.set(this.isShow,index,!this.isShow[index]);
+                event.currentTarget.classList.add("brokerage-active");
+                if(!this.isShow[index]){
+                    event.currentTarget.classList.remove("brokerage-active");
+                };
+                if (this.detail_list['' + id] === null || this.detail_list['' + id] === undefined) {
+                    //假设暂时没有获取的数据，才进行获取
+                    this.getMonthData(id, function (data) {
+                        that.detail_list['' + id] = data;
+                    });
+                }
+            },
+            getMonthData:function (month,callback) {
+                var that=this;
+                //month指代月份
+                //callback的参数是一个[]，数组元素示例如下
+                //这里写请求逻辑，将数据辅助到data上，然后执行callback，data作为参数传入
+                var data=[
+                    {
+                        name:"hrufhjdhf",
+                        num:"556",
+                        time:"2015-05-05 12:12:12"
+                    },
+                    {
+                        name:"hrufhjdhf",
+                        num:"556",
+                        time:"2015-05-05 12:12:12"
+                    }
+                ];//获取到的新数据
+                callback(data);//获取到的数据这样执行即可
+                axios.post('url',{
+                    id:month
+                }).then(function (response) {
+                    var data=[
+                        {
+                            name:"hrufhjdhf",
+                            num:"556",
+                            time:"2015-05-05 12:12:12"
+                        },
+                        {
+                            name:"hrufhjdhf",
+                            num:"556",
+                            time:"2015-05-05 12:12:12"
+                        }
+                    ];//获取到的新数据
+                    callback(data);//获取到的数据这样执行即可
+                }).catch(function (error) {
+                    // 弹框提示
+                    dialog(that,error);
+                });
+            }
+        }
+    });
+</script>
+</body>
+</html>

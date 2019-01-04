@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no" />  <!--去除iphone微信下浏览器中数字下划线-->
+    <title>提现</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div class="withDraw-form">
+        <form class="form-box">
+            <div class="form-item">
+                <div class="form-item-title">提现钱包地址</div>
+                <div class="form-label">
+                    <input v-model.trim="address" placeholder="请输入您想要转入的钱包地址">
+                </div>
+            </div>
+            <div class="form-item">
+                <div class="form-item-title">提现金额</div>
+                <div class="form-label">
+                    <input v-model.trim="money" value="money" placeholder="请输入您想要转入的金额">
+                    <div class="withText">BTH</div>
+                </div>
+            </div>
+            <div class="withDraw-balance">
+                余额：555 BTH，<span @click="balanceAll(555)">全部提现</span>
+            </div>
+            <div class="form-item">
+                <button type="button" @enter="balance" @click="balance" class="login-btn login-active">提现</button>
+            </div>
+        </form>
+    </div>
+    <div class="confirm" v-show="isDialog">{{alertText}}</div>
+</div>
+<script src="js/common.js"></script>
+<script>
+    var app = new Vue({
+        el: '#app',
+        data:{
+            money:'',
+            address:"",
+            isDialog:false,
+            alertText:""
+        },
+        methods: {
+            balanceAll:function (num) {
+                this.money=num;
+            },
+            balance:function () {
+                var that=this;
+                if(this.money&&this.address){
+                    axios.post('url',{
+                        address:that.address,
+                        money:that.money
+                    }).then(function (response) {
+
+                    }).catch(function (error) {
+                        // 弹框提示
+                        dialog(that,error);
+                    });
+                }else{
+                // 弹框提示
+                    dialog(this,"请填写地址或金额");
+                }
+            }
+        }
+    });
+</script>
+</body>
+</html>

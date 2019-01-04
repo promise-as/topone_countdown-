@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no" />  <!--去除iphone微信下浏览器中数字下划线-->
+    <title>登录</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+</head>
+<body>
+<div id="app" class="form-box" v-cloak>
+    <form>
+        <div class="form-item">
+            <div class="select-box">
+                <div class=" select">
+                    <select class="form-select">
+                        <option>+86</option>
+                    </select>
+                </div>
+            </div>
+            <label class="form-label pl1">
+                <input v-model.trim="phone" placeholder="请输入您的手机号">
+            </label>
+        </div>
+        <div class="form-item">
+            <label class="form-label">
+                <input v-model.trim="code" placeholder="请输入您的验证码">
+            </label>
+            <div :class="['code',code_active]" @click="requestCode">{{codeText}}</div>
+        </div>
+        <div class="form-item">
+            <button type="button" @enter="login" @click="login" :class="['login-btn',(phone&&code)?'login-active':'']">登录</button>
+        </div>
+    </form>
+    <div class="confirm" v-show="isDialog">{{alertText}}</div>
+</div>
+<script src="js/common.js"></script>
+<script type="text/javascript" src="js/login.js"></script>
+</body>
+</html>

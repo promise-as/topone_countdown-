@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no" />  <!--去除iphone微信下浏览器中数字下划线-->
+    <title>我的资产</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+</head>
+<body class="bg-fa">
+<div id="app" v-cloak>
+    <div class="assets-tab">
+        <div class="tab-nav">
+            <div class="tab-item tab-active">
+                <span>真实资产</span>
+            </div>
+            <div class="tab-item">
+                <span>模拟盘资产</span>
+            </div>
+        </div>
+    </div>
+    <div class="C2C-header">
+        <div class="C2C-title">
+            账户余额
+        </div>
+        <div class="C2C-money">
+            <label>
+                500.00<span class="font30">BTH</span>
+            </label>
+        </div>
+    </div>
+    <div class="my-list">
+        <ul class="assets-list">
+            <li >
+                <a href="assetDetail.html">
+                    <div class="my-list-item my-list-text">
+                        <i class="icon icon-assets"></i>
+                        <span>资产明细</span>
+                    </div>
+                    <span class="my-caret"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="assets">
+        <a href="recharge.html" class="login-btn login-active">充值</a>
+        <a href="withDraw.html" class="skip">提现</a>
+    </div>
+</div>
+<script type="text/javascript" src="js/common.js"></script>
+<script src="js/clipbord.js"></script>
+</body>
+</html>

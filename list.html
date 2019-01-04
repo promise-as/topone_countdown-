@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no" />  <!--去除iphone微信下浏览器中数字下划线-->
+    <title>榜单排行</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+</head>
+<body>
+<div id="app" v-cloak>
+    <div class="crunchies">
+        <ul>
+            <li v-for="(item,index) in list">
+                <div class="crun-item clearfix">
+                    <div class="fl">
+                        <div class="crun-box crun-num">
+                            <img v-if="index<3" :src="'images/top_number_'+index+'.png'" >
+                            <span v-if="index>=3">{{index+1}}</span>
+                        </div>
+                        <div class="crun-box crun-img"><img :src="item.img"></div>
+                        <div class="crun-box crun-phone">{{item.phone}}</div>
+                    </div>
+                    <div class="fr">
+                        <div class="crun-box crun-precent">{{item.precent}}</div>
+                        <div class="crun-box crun-title">{{item.title}}</div>
+                    </div>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript">
+    var app=new Vue({
+        el:"#app",
+        data:{
+            list:[
+                {
+                    img:"images/list_img.png",
+                    phone:"136****7512",
+                    precent:"80%",
+                    title:"逆袭榜"
+                },
+                {
+                    img:"images/list_img.png",
+                    phone:"136****7512",
+                    precent:"80%",
+                    title:"逆袭榜"
+                },
+                {
+                    img:"images/list_img.png",
+                    phone:"136****7512",
+                    precent:"80%",
+                    title:"逆袭榜"
+                },
+                {
+                    img:"images/list_img.png",
+                    phone:"136****7512",
+                    precent:"80%",
+                    title:"逆袭榜"
+                },
+                {
+                    img:"images/list_img.png",
+                    phone:"136****7512",
+                    precent:"80%",
+                    title:"逆袭榜"
+                },
+                {
+                    img:"images/list_img.png",
+                    phone:"136****7512",
+                    precent:"80%",
+                    title:"逆袭榜"
+                },
+                {
+                    img:"images/list_img.png",
+                    phone:"136****7512",
+                    precent:"80%",
+                    title:"逆袭榜"
+                },
+                {
+                    img:"images/list_img.png",
+                    phone:"136****7512",
+                    precent:"80%",
+                    title:"逆袭榜"
+                }
+            ]
+        }
+    })
+</script>
+</body>
+</html>

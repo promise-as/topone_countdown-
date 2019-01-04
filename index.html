@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no"/>  <!--去除iphone微信下浏览器中数字下划线-->
+  <title>首页</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/index_2.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+</head>
+<body>
+<div id="app" v-cloak>
+  <!--蒙版-->
+  <div class="trade-mask" v-if="isMask">
+    <div class="mask"></div>
+    <div class="wrap">
+      <div class="modal">
+        <div class="model-close">
+          <i class="close-btn" @click="isMask = false"></i>
+        </div>
+        <div class="subTitle">新用户福利</div>
+
+        <div class="main-img">
+          <div class="main-content">每日登录送1000糖果</div>
+        </div>
+        <div class="candies">每日登录送1000糖果</div>
+
+        <a class="actCouponBtn" href="javascript:;">
+          <span>立即交易</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="ad" v-show="isAd">
+    <div class="ad-icon">
+      <img src="images/img_homepage_notice.png">
+    </div>
+    <div class="ad-box">
+      <marquee scrollamount="3" behavior="scroll">我是一条公告</marquee>
+    </div>
+    <div class="ad-close" @click="adClose">
+      <img src="images/btn_closed.png">
+    </div>
+  </div>
+  <div class="win">
+    <div class="content">
+      <div class="win-pop" ref="pop">
+        <!--fadeOutUp animated 气泡动画类名-->
+        <div class="pop" v-for="(item,index) in pop_list">
+          <span class="green"> {{item.name}}</span>赢得了<span class="yellow"> {{item.num}} </span>ETH
+        </div>
+      </div>
+      <div class="win-box">
+        <img class="win-img" src="images/win-img.png">
+        <div class="win-list">
+          <ul class="win-ul clearfix">
+            <li class="win-item">
+              <ul class="win-num" id="lottery0">
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_1.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_2.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_3.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_4.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_5.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_6.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_7.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_8.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_9.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+              </ul>
+            </li>
+            <li class="win-item">
+              <ul class="win-num" id="lottery1">
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_1.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_2.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_3.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_4.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_5.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_6.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_7.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_8.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_9.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+              </ul>
+            </li>
+            <li class="win-item">
+              <ul class="win-num" id="lottery2">
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_1.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_2.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_3.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_4.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_5.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_6.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_7.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_8.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_9.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+              </ul>
+            </li>
+            <li class="win-item">
+              <ul class="win-num" id="lottery3">
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_1.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_2.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_3.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_4.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_5.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_6.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_7.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_8.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_9.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+              </ul>
+            </li>
+            <li class="win-item">
+              <ul class="win-num" id="lottery4">
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_1.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_2.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_3.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_4.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_5.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_6.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_7.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_8.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_9.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+              </ul>
+            </li>
+            <li class="win-item">
+              <ul class="win-num" id="lottery5">
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_1.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_2.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_3.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_4.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_5.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_6.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_7.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_8.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_9.png">
+                </li>
+                <li>
+                  <img ref="win" src="images/num_0.png">
+                </li>
+              </ul>
+            </li>
+            <li class="win-item"></li>
+          </ul>
+        </div>
+      </div>
+      <div class="win-btn">
+        <a href="trade.html">
+          <img src="images/win_btn.png">
+        </a>
+      </div>
+    </div>
+    <div class="win-coin">
+      <img src="images/coin.png">
+    </div>
+  </div>
+  <div class="list">
+    <div class="content">
+      <div class="list-item">
+        <div class="list-box">
+          <a href="list.html">
+            <div class="list-img">
+              <img src="images/list_money.png">
+            </div>
+            <h2 class="list-title orange">财富榜</h2>
+          </a>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-box">
+          <a href="list.html">
+            <div class="list-img">
+              <img src="images/list_lucky.png">
+            </div>
+            <h2 class="list-title blue">逆袭榜</h2>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="content">
+      <div class="list-item">
+        <div class="list-box">
+
+          <div class="data-title">ETH/USDT</div>
+          <div class="data-change">
+            <span class="data-num blue">113.5480</span>
+          </div>
+          <div class="data-percent gray">
+            -0.15%
+          </div>
+          <div class="data-percent gray">
+            ≈¥789.75
+          </div>
+        </div>
+      </div>
+      <div class="list-item">
+        <div class="list-box">
+          <div class="data-title">
+            EOS/USDT
+          </div>
+          <div class="data-change">
+            <span class="data-num purple">113.5480</span>
+          </div>
+          <div class="data-percent gray">
+            -0.15%
+          </div>
+          <div class="data-percent gray">
+            ≈¥789.75
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="nav">
+    <a class="nav-item" v-for='(item,index) in nav_list' :href="item.href" :class="0 ==index?'nav-active':''">
+      <i class="icon" :class="item.icon"></i>
+      <span class="nav-text">{{item.text}}</span>
+    </a>
+  </div>
+</div>
+</body>
+<script type="text/javascript" src="js/common.js"></script>
+<script type="text/javascript" src="js/index.js"></script>
+<!--<script type="text/javascript" src="js/index_2.js"></script>-->
+</html>

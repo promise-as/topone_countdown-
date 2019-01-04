@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no" />  <!--去除iphone微信下浏览器中数字下划线-->
+    <title>充值</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+</head>
+<body class="bg-fa">
+<div id="app" v-cloak>
+    <div class="recharge">
+        <div class="recharge-title">XXX钱包充值</div>
+        <div class="recharge-box">
+            <div class="recharge-img">
+                <img src="images/code.png">
+            </div>
+            <div class="recharge-address-title">
+                <span>钱包地址</span>
+            </div>
+            <div class="recharge-address">
+                bkjsdbnfkjsdng145456454bkjsdbnfkjsdng145456454bkjsdbnfkjsdng145456454bkjsdbnfkjsdng145456454
+                <div class="recharge-copy" @click="copy" data-clipboard-text="bkjsdbnfkjsdng145456454bkjsdbnfkjsdng145456454bkjsdbn">
+                    <img src="images/c2c_copy.png">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="my-list recharge-list">
+        <ul>
+            <li >
+                <a href="assetDetail.html">
+                    <div class="my-list-item my-list-text">
+                        <span>资产明细</span>
+                    </div>
+                    <span class="my-caret"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+</div>
+<script type="text/javascript" src="js/common.js"></script>
+<script src="js/clipbord.js"></script>
+<script type="text/javascript">
+    var app=new Vue({
+        el:"#app",
+        methods:{
+            copy:function () {
+                var clipboard = new Clipboard('.recharge-copy');
+                clipboard.on('success', function(e) {
+                });
+                clipboard.on('error', function(e) {
+                    alert("复制失败,请手工选择复制的内容")
+                });
+            }
+        }
+    });
+
+</script>
+</body>
+</html>

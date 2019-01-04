@@ -1,0 +1,2228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="format-detection" content="telephone=no"/>  <!--去除iphone微信下浏览器中数字下划线-->
+  <title>交易</title>
+  <link rel="stylesheet" href="css/index.css">
+  <link rel="stylesheet" href="css/index_2.css">
+  <link rel="stylesheet" href="css/trade.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+
+  <!--<script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/echarts.min.js"></script>
+  <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-gl/echarts-gl.min.js"></script>
+  <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts-stat/ecStat.min.js"></script>
+  <script type="text/javascript"
+          src="http://echarts.baidu.com/gallery/vendors/echarts/extension/dataTool.min.js"></script>
+  <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/china.js"></script>
+  <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/map/js/world.js"></script>
+  <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=ZUONbpqGBsYGXNIYHicvbAbM"></script>
+  <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/echarts/extension/bmap.min.js"></script>
+  <script type="text/javascript" src="http://echarts.baidu.com/gallery/vendors/simplex.js"></script>-->
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+  <script src="https://cdn.bootcss.com/jquery-cookie/1.4.1/jquery.cookie.js"></script>
+</head>
+<body>
+<div id="app" v-cloak>
+  <div class="confirm" v-show="isShowHint">
+    <span v-if="isSucceed === 0">{{alertText1}}</span>
+    <span v-if="isSucceed === 1">{{alertText2}}</span>
+  </div>
+  <!--蒙版-->
+  <div class="trade-mask" v-if="isMask">
+    <div class="mask"></div>
+    <div class="wrap">
+      <div class="modal">
+        <div class="model-close">
+          <i class="close-btn" @click="isMask = false"></i>
+        </div>
+        <div class="subTitle">自定义金额</div>
+
+        <input type="number" class="model-input"
+               placeholder="请输入金额"
+               v-model="enterSum">
+
+        <a class="actCouponBtn" href="javascript:;"
+           @click="assess(enterSum)">
+          <span>确定</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <!--Top One-->
+  <div class="topone-warp">
+    <!--左边-->
+    <div class="wrap-real">
+      <div class="real-logo">
+        Top One
+      </div>
+      <div class="real-content">
+        <div class="content-item active">
+          <a href="javascript:;">真实盘</a>
+        </div>
+        <div class="content-item">
+          <a href="javascript:;">糖果</a>
+        </div>
+      </div>
+    </div>
+    <!--当前资产-->
+    <div class="real-asset">
+      <div class="asset-left">
+        <i class="left-icon"></i>
+        <span>当前资产</span>
+      </div>
+      <div class="asset-right">
+        <span>1000ETH</span>
+        <span>100000糖果</span>
+      </div>
+    </div>
+  </div>
+  <!--ETH tab-->
+  <div class="main-tab">
+    <div class="tab-item active">
+      <span>EIH</span>
+    </div>
+    <div class="tab-item">
+      <span>EOS</span>
+    </div>
+    <div class="tab-item">
+      <span>LTC</span>
+    </div>
+  </div>
+  <!--chart-->
+  <div id="container"></div>
+  <!--分时-->
+  <div class="time-share">
+    <form class="time-share-form">
+      <div class="time-period">周期</div>
+      <div class="time-item">1H</div>
+      <div class="time-item">5M</div>
+      <div class="time-item">1M</div>
+      <div class="time-item active">分时</div>
+    </form>
+  </div>
+  <form action="#">
+    <!--收益-->
+    <div class="earn-warp">
+      <!--时间-->
+      <div class="time-container">
+        <div class="time">
+          <div class="time-main">
+            <span>时间</span>
+            <div class="main-how">
+              <div class="how-item active">60s</div>
+              <div class="how-item">300s</div>
+            </div>
+          </div>
+        </div>
+        <!--手续费-->
+        <div class="procedure-fee" v-if="procedureFee">
+          手续费：<span>{{procedureFee}}</span>%
+        </div>
+      </div>
+      <!--金额-->
+      <div class="sum-container">
+        <span>金额 (ETH)</span>
+        <div class="sum-main">
+          <div class="sum-item active" @click="sum1">{{num1}}</div>
+          <div class="sum-item" @click="sum2">{{num2}}</div>
+          <div class="sum-item" @click="sum3">{{num3}}</div>
+          <div class="sum-item" @click="sum4">{{num4}}</div>
+          <div class="sum-item" @click="sum5">{{num5}}</div>
+          <div class="sum-item" @click="sum6">{{num6}}</div>
+          <div class="sum-item" @click="sum7">{{num7}}</div>
+
+          <div class="sum-item" @click="changeSum">
+            {{customSum}}
+          </div>
+
+        </div>
+      </div>
+      <!--涨 和 跌-->
+      <div class="rise-fall" v-if="sweets">
+        <div class="rise-container">
+          <input type="button" class="rise-title" value="涨"/>
+          <div class="rise-main">
+            <div class="main-top">
+              收益：<span>80%</span>
+            </div>
+            <div class="main-bottom">
+              <input type="radio" class="radio active">
+              <span>{{sweets}}糖果抵{{sweetsNum}}ETH</span>
+            </div>
+          </div>
+        </div>
+        <div class="rise-container">
+          <input type="button" class="rise-title" value="跌"/>
+          <div class="rise-main">
+            <div class="main-top">
+              收益：<span>80%</span>
+            </div>
+            <div class="main-bottom">
+              <input type="radio" class="radio">
+              <span>{{sweets}}糖果</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!--查看订单-->
+      <a class="order" href="javascript:;">
+        查看历史订单
+      </a>
+    </div>
+  </form>
+  <!--时间倒计时-->
+  <div class="count-down">
+    <!--60s-->
+    <div class="progress-bar active">
+      <div id="btnSend" class="bar-content"
+           style="width: 0%; height: 0.26rem;"
+      >60</div>
+    </div>
+
+    <!--300s-->
+    <div class="progress-bar">
+      <div id="btnSend2" class="bar-content"
+           style="width: 0%; height: 0.26rem;"
+      >300</div>
+    </div>
+  </div>
+  <!--底部导航-->
+  <div class="nav">
+    <a class="nav-item" v-for='(item,index) in nav_list' :href="item.href" :class="1 ==index?'nav-active':''">
+      <i class="icon" :class="item.icon"></i>
+      <span class="nav-text">{{item.text}}</span>
+    </a>
+  </div>
+</div>
+</body>
+<script src="js/common.js"></script>
+
+<script type="text/javascript" src="js/trade.js"></script>
+<!--<script src="js/chart.js"></script>-->
+</html>
+
+<script>
+  /*timeTab*/
+  var topOne = document.querySelectorAll('.real-content > .content-item')
+  // ETH tab
+  var ethTab = document.querySelectorAll('.main-tab > .tab-item')
+  // 时间切换
+  var timeTab = document.querySelectorAll('.main-how > .how-item')
+  // 金额切换
+  var moneyTab = document.querySelectorAll('.sum-main > .sum-item')
+  // 收益的涨和跌
+  var earnRadio = document.querySelectorAll('.main-bottom > .radio')
+  // 进度条的切换
+  var progressBars = document.querySelectorAll('.count-down > .progress-bar')
+  // 分时切换
+  var timeShareTab = document.querySelectorAll('.time-share-form > .time-item')
+
+  // 通用tab切换
+  function active(activeList) {
+    for (let i = 0, len = activeList.length; i < len; i++) {
+      activeList[i].onclick = function () {
+        for (let j = 0; j < len; j++) {
+          activeList[j].classList.remove("active")
+        }
+        activeList[i].classList.add("active")
+      }
+    }
+  }
+
+  // 60s和300s切换
+  function timeTable(activeList, progressBars) {
+    for (let i = 0, len = activeList.length; i < len; i++) {
+      activeList[i].onclick = function () {
+        for (let j = 0; j < len; j++) {
+          activeList[j].classList.remove("active")
+          progressBars[j].classList.remove("active")
+        }
+        activeList[i].classList.add("active")
+        progressBars[i].classList.add("active")
+        if($(".main-how").find(".active").text() === '60s'){
+          whichCountdown = 60
+        }else{
+          whichCountdown = 300
+        }
+      }
+    }
+  }
+
+  active(topOne)
+  // ETH tab
+  active(ethTab)
+  // 时间切换
+  timeTable(timeTab, progressBars)
+  // 金额切换
+  active(moneyTab)
+  // 收益的涨和跌
+  active(earnRadio)
+  // 进度条的切换
+  // active(progressBars)
+</script>
+
+<script type="text/javascript">
+  // 判断是60s还是300s
+  if($(".main-how").find(".active").text() === '60s'){
+    whichCountdown = 60
+  }else{
+    whichCountdown = 300
+  }
+
+  // 60s
+  $(function () {
+    $('body').on('click', '#btnSends', function () {
+      // console.log('60s 点击了')
+      $('body').off('click', '#btnSends')
+      LockButton('#btnSend', 60)
+    })
+
+    // console.log(333, $.cookie("style"))
+    if ($.cookie("style") === undefined || $.cookie("style") === 'null' || $.cookie("style") === 'undefined') {
+      // console.log('60s')
+      $('#btnSend')[0].style.width = '100%'
+
+    } else {
+      // console.log(222)
+      $('#btnSend')[0].style.width = parseFloat($.cookie("style"))
+      // console.log('11111111111111111')
+      $(".order")[0].style.display = 'none'
+      $(".count-down .active")[0].style.display = 'flex'
+    }
+
+    //读取cookie
+    if ($.cookie("djsendtime") != undefined && !isNaN($.cookie("djsendtime"))) {  //读取到了cookie值
+      var djsendtime = $.cookie("djsendtime")
+      var now = new Date().getTime()  //当前时间戳
+      var locksecends = parseInt((djsendtime - now) / 1000)
+
+      if (locksecends <= 0) {
+        $.cookie("djsendtime", null)
+      } else {
+        LockButton('#btnSend', locksecends)
+      }
+    }
+  })
+  // 按钮倒计时
+  var LockButton = function (btnObjId, locksecends) {
+    //1.获取当前系统时间
+    //2.获取 locksecends 后的系统时间
+    //3.用cookie保存到期时间
+    //4.每次加载后获取cookie中保存的时间
+    //5.用到期时间减去当前时间获取倒计时
+    // console.log(1, $.cookie("djsendtime"))
+    var djsendtime = $.cookie("djsendtime")
+    // console.log(11111, djsendtime)
+    if (djsendtime === null || djsendtime === undefined || djsendtime === 'undefined' || djsendtime === 'null') {
+      var now = new Date().getTime()  //当前时间戳
+      // console.log(2222222, now)
+      var endtime = locksecends * 1000 + now  //结束时间戳
+      $.cookie("djsendtime", endtime)  //将结束时间保存到cookie
+    }
+    var timer = setInterval(function () {
+      locksecends--
+      $(btnObjId).text(locksecends)
+      if ($.cookie("style") === undefined || $.cookie("style") === 'null' || $.cookie("style") === 'undefined') {
+        $(btnObjId)[0].style.width = parseFloat(parseInt($(btnObjId)[0].style.width) - 100 / 60) + '%'
+        $.cookie("style", $(btnObjId)[0].style.width)
+      } else {
+        $(btnObjId)[0].style.width = $.cookie("style")
+        $(btnObjId)[0].style.width = parseFloat(parseFloat($.cookie("style")) - 100 / 60) + '%'
+        $.cookie("style", $(btnObjId)[0].style.width)
+        $.cookie("style", null);
+      }
+      $.cookie("style", null);
+      $(btnObjId)[0].style.width = parseFloat(parseFloat($.cookie("style")) - 100 / 60) + '%'
+      $.cookie("style",$(btnObjId)[0].style.width);
+
+      if (locksecends <= 0) {
+        clearInterval(timer)
+        // console.log('清除定时器')
+        $(btnObjId)[0].style.width = '0%'
+        $(btnObjId)[0].style.height = '0'
+        $(btnObjId)[0].parentNode.style.display = 'none'
+        $($('.rise-title')[window.riseFall]).attr("disabled",false)
+
+        // $("#id").removeAttr("disabled");
+        // $("#id").attr("disabled",false);
+
+        // $('.rise-title').attr('disabled', 'abled')
+        $(".order")[0].style.display = 'flex'
+        //倒计时结束清除cookie值
+        $.cookie("djsendtime", null)
+        $.cookie("style", null)
+        $('body').on('click', btnObjId);
+      }
+    }, 1000)
+  }
+
+  // 300s
+  $(function () {
+    $('body').on('click', '#btnSends', function () {
+      console.log('点击了')
+      $('body').off('click', '#btnSends')
+      LockButton2('#btnSend2', 300)
+    })
+    // console.log(333, $.cookie("style2"))
+
+    if ($.cookie("style2") === undefined || $.cookie("style2") === 'null' || $.cookie("style2") === 'undefined') {
+      // console.log(111, $('#btnSend2')[0].style.width)
+      $('#btnSend2')[0].style.width = "100%"
+    } else {
+      $('#btnSend2')[0].style.width = parseFloat($.cookie("style2"))
+      // console.log(222, $('#btnSend2')[0].style.width)
+    }
+
+    //读取cookie
+    if ($.cookie("djsendtime2") !== undefined && !isNaN($.cookie("djsendtime2"))) {  //读取到了cookie值
+      var djsendtime2 = $.cookie("djsendtime2")
+      var now = new Date().getTime()  //当前时间戳
+      var locksecends = parseInt((djsendtime2 - now) / 1000)
+
+      if (locksecends <= 0) {
+        $.cookie("djsendtime2", null)
+      } else {
+        LockButton2('#btnSend2', locksecends)
+      }
+    }
+  })
+  // 按钮倒计时
+  var LockButton2 = function (btnObjId, locksecends) {
+    console.log('进入倒计时Fn')
+    //1.获取当前系统时间
+    //2.获取 locksecends 后的系统时间
+    //3.用cookie保存到期时间
+    //4.每次加载后获取cookie中保存的时间
+    //5.用到期时间减去当前时间获取倒计时
+    var djsendtime2 = $.cookie("djsendtime2")
+    // console.log(11111, djsendtime)
+    if (djsendtime2 === null || djsendtime2 === undefined || djsendtime2 === 'undefined' || djsendtime2 === 'null') {
+      var now = new Date().getTime()  //当前时间戳
+      // console.log(2222222, now)
+      var endtime = locksecends * 1000 + now  //结束时间戳
+      $.cookie("djsendtime2", endtime)  //将结束时间保存到cookie
+    }
+    $(btnObjId).addClass('disabled').attr('disabled', 'disabled').text(locksecends)
+    // $('body').off('click', '#btnSendSMS')
+    var timer2 = setInterval(function () {
+      console.log('进定时器')
+      locksecends--
+      $(btnObjId).text(locksecends)
+      if ($.cookie("style2") === 'null') {
+
+        $(btnObjId)[0].style.width = parseFloat(parseInt($(btnObjId)[0].style.width) - 100/300) + '%'
+        // console.log(111, $(btnObjId)[0].style.width)
+        $.cookie("style2", $(btnObjId)[0].style.width)
+      } else {
+        $(btnObjId)[0].style.width = $.cookie("style2")
+        $(btnObjId)[0].style.width = parseFloat(parseFloat($.cookie("style2")) - 100/300) + '%'
+        $.cookie("style2", $(btnObjId)[0].style.width)
+        $.cookie("style2", null);
+      }
+      $.cookie("style2", null);
+      $(btnObjId)[0].style.width = parseFloat(parseInt($.cookie("style2")) - 100/300) + '%'
+      $.cookie("style2",$(btnObjId)[0].style.width);
+
+      if (locksecends <= 0) {
+        clearInterval(timer2)
+        console.log('清除定时器')
+        $(btnObjId)[0].style.width = '0%'
+        $(btnObjId)[0].style.height = '0'
+        $(btnObjId)[0].parentNode.style.display = 'none'
+        //倒计时结束清除cookie值
+        $.cookie("djsendtime2", null)
+        $.cookie("style2", null)
+        $('body').on('click', btnObjId);
+      }
+    }, 1000)
+  }
+
+  /*涨和跌按钮*/
+  var riseFall = document.querySelectorAll('.rise-container > .rise-title')
+  active(riseFall)
+  function active(activeList) {
+    for (let i = 0, len = activeList.length; i < len; i++) {
+      activeList[i].onclick = function () {
+        if(activeList[i].value === '涨'){
+          console.log('涨')
+          // 处理涨的逻辑
+          $(".order")[0].style.display = 'none'
+          $(".count-down .active")[0].style.display = 'flex'
+          $(activeList[i]).attr('disabled', 'disabled')
+          $('body').off('click', $(activeList[i]))
+          window.riseFall = 0; // 0代表涨，1代表跌
+          if(whichCountdown === 60){
+            LockButton('#btnSend', 60)
+          }else if(whichCountdown === 300){
+            LockButton2('#btnSend2', 300)
+          }
+        }else {
+          // 处理跌的逻辑
+          $(".order")[0].style.display = 'none'
+          window.riseFall = 1; //
+          if(whichCountdown === 60){
+            LockButton('#btnSend', 60)
+          }else if(whichCountdown === 300){
+            LockButton2('#btnSend2', 300)
+          }
+        }
+      }
+    }
+  }
+
+  window.onload = function () {
+    // 数据意义：开盘(open)，收盘(close)，最低(lowest)，最高(highest)
+    var dom = document.getElementById("container")
+    var myChart = echarts.init(dom)
+    var app = {}
+    var option = null
+    var upColor = '#ec0000'
+    var upBorderColor = '#8A0000'
+    var downColor = '#00da3c'
+    var downBorderColor = '#008F28'
+    var name
+
+    var timeShareTab = document.querySelectorAll('.time-share-form > .time-item')
+    /*if (product_id == 1) {
+      name = 'ETHBTC';
+    } else if (product_id == 2) {
+      name = 'EOSETH';
+    } else {
+      name = 'LTCETH';
+    }*/
+
+    /*时间的格式化: 把GMT时间格式化成2018/12/24 16:01:00*/
+    function fmtDate(timestamp) {
+      var date = new Date(timestamp * 1000)//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+      var Y = date.getFullYear() + '/'
+      var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '/'
+      var D = date.getDate()
+      if (D < 10) {
+        D = '0' + D + ' '
+      } else {
+        D = D + ' '
+      }
+      var h = date.getHours()
+      if (h < 10) {
+        h = '0' + h + ":"
+      } else {
+        h = h + ":"
+      }
+      var m = date.getMinutes()
+      if (m < 10) {
+        m = '0' + m + ":"
+      } else {
+        m = m + ":"
+      }
+      var s = date.getSeconds()
+      if (s < 10) s = '0' + s
+      return h + m + s
+      // console.log(Y + M + D + h + m + s)
+      // 输出结果：2018-12-24 16:01:00
+    }
+
+    function splitData(rawData) {
+      var categoryData = []
+      var values = []
+      for (var i = 0; i < rawData.length; i++) {
+        categoryData.push(rawData[i].splice(0, 1)[0])
+        values.push(rawData[i])
+      }
+      return {
+        categoryData: categoryData,
+        values: values
+      }
+    }
+
+    // 数据意义：开盘(open)，收盘(close)，最低(lowest)，最高(highest)
+    var data0 = splitData([])
+    var arrid
+
+    function calculateMA(dayCount) {
+      var result = []
+      for (var i = 0, len = data0.values.length; i < len; i++) {
+        if (i < dayCount) {
+          result.push('-')
+          continue
+        }
+        var sum = 0
+        for (var j = 0; j < dayCount; j++) {
+          sum += data0.values[i - j][1]
+        }
+        result.push(sum / dayCount)
+      }
+      return result
+    }
+
+    let cmp = name
+    data0.categoryData.length = 0
+    data0.values.length = 0
+    $.ajax({
+      type: "POST",
+      url: "fenshi.php",
+      data: 'name=' + cmp,
+      dataType: "json",
+      success: function (datas) {
+        var app = {}
+        option = null
+
+        function randomData(time, value) {
+          var date = new Date(time * 1000)//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+          var Y = date.getFullYear() + '-'
+          var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+          var D = date.getDate() + ' '
+          var h = date.getHours()
+          if (h < 10) {
+            h = '0' + h + ":"
+          } else {
+            h = h + ":"
+          }
+          var m = date.getMinutes()
+          if (m < 10) {
+            m = '0' + m + ":"
+          } else {
+            m = m + ":"
+          }
+          var s = date.getSeconds()
+          return {
+            name: h + m + s,
+            value: [
+              h + m + s,
+              value
+            ]
+          }
+        }
+
+        var data = []
+        var now = +new Date(1997, 9, 3)
+        var oneDay = 24 * 3600 * 1000
+        var value = Math.random() * 1000
+
+        // 用户下单的时间
+        var timeObj = randomData(new Date() / 1000)
+        var currentTime = timeObj.name
+        // console.log(111, currentTime)
+        var ts = Math.round(new Date().getTime()/1000).toString();
+        // console.log(222, ts)
+        // 时间对应的值
+        var tsValue;
+
+        for (var i = 0, len = datas.data.length; i < len; i++) {
+          data.push(randomData(datas.data[i].tickcount, datas.data[i].price))
+          // 找到对应的值
+          if(ts === datas.data[i].tickcount){
+            tsValue = datas.data[i].price
+          }else{
+            tsValue = datas.data[len - 1].price
+          }
+        }
+        // console.log(333, tsValue, datas.data)
+
+        option = {
+          backgroundColor: '#21202D',
+          tooltip: {
+            trigger: 'axis',
+          },
+          xAxis: {
+            type: 'category',
+            axisLine: {lineStyle: {color: '#D0D0D0'}},
+            splitLine: {
+              show: false
+            }
+          },
+          yAxis: {
+            scale: true,
+            axisLine: {lineStyle: {color: '#D0D0D0'}},
+            splitLine: {
+              show: false
+            }
+          },
+          grid: {
+            top: '10%',
+            left: '14%',
+            right: '5%',
+            bottom: '6%'
+          },
+          series: [
+            {
+              name: '行情价格',
+              type: 'line',
+              showSymbol: false,
+              hoverAnimation: false,
+              data: data,
+              itemStyle: {
+                normal: {
+                  color: '#D0D0D0'
+                }
+              },
+
+              // 标点
+              markPoint: {
+                symbol: 'circle',
+                symbolSize: 6,
+                data: [
+                  {
+                    name: '用户下单标点',
+                    coord: [currentTime, tsValue],
+                    // value: tsValue, // 是0或者null就显示0
+                    itemStyle: {
+                      normal: {color: 'rgb(255, 255, 255)'},
+                    }
+                  },
+                ]
+              },
+            }
+          ]
+        }
+
+        // console.log(444, tsValue)
+
+        twotime = setInterval(function () {
+          $.ajax({
+            type: "POST",
+            url: "fenshi.php",
+            data: 'name=' + cmp,
+            dataType: "json",
+            success: function (datas) {
+              for (var i = 0; i < datas.data.length; i++) {
+                //data.shift();
+                data.push(randomData(datas.data[i].tickcount, datas.data[i].price))
+              }
+              myChart.setOption({
+                series: [{
+                  data: data
+                }]
+              })
+            }
+          })
+        }, 1000)
+
+        if (option && typeof option === "object") {
+          myChart.setOption(option, true)
+        }
+
+      }
+    })
+
+    // 分时的切换
+    timeShare(timeShareTab)
+
+    function timeShare(activeList) {
+      for (let m = 0, len = activeList.length; m < len; m++) {
+        activeList[m].onclick = function () {
+          if (m == 3) {
+            timeshare()
+          } else {
+            refreshData(m + 1)
+          }
+          for (let n = 0; n < len; n++) {
+            activeList[n].classList.remove("active")
+          }
+          activeList[m].classList.add("active")
+        }
+      }
+    }
+
+    // 更新数据
+    function refreshData(num) {
+      let numbers = num
+      let cmp = name
+      clearInterval(time)
+      clearInterval(twotime)
+      data0.categoryData.length = 0
+      data0.values.length = 0
+      $.ajax({
+        type: "POST",
+        url: "/index/firstk/index.html",
+        data: 'time=' + numbers + '&name=' + cmp,
+        dataType: "json",
+        success: function (data) {
+          for (var i = 0; i < data.data.length; i++) {
+
+            // 判断数组的最后一个是否为yes
+
+            data0.categoryData.push(fmtDate(data.data[i].tick_start / 1000))
+            data0.values.push(
+              [parseFloat(data.data[i].open), parseFloat(data.data[i].close),
+                parseFloat(data.data[i].low), parseFloat(data.data[i].high)])
+            if (data.data[i].stable == 'no') {
+              arrid = data.data[i].tick_start
+            }
+          }
+          // 指定图表的配置项和数据
+          option = {
+            // 背景
+            backgroundColor: '#21202D',
+            // 提示文本
+            tooltip: {
+              // 触发类型
+              trigger: 'axis',
+              // 坐标轴指示器配置项
+              axisPointer: {
+                // 指示器类型
+                type: 'cross',
+                animation: true,
+                lineStyle: {
+                  type: 'dashed' // 虚线
+                }
+              }
+            },
+            // 调整坐标系与边框的距离
+            grid: {
+              top: '10%',
+              left: '14%',
+              right: '5%',
+              bottom: '6%'
+            },
+            // x轴
+            xAxis: {
+              // 坐标轴类型
+              type: 'category',
+              // 类目数据
+              data: data0.categoryData,
+              // 是否是脱离 0 值比例
+              scale: true,
+              // 坐标轴两边留白策略
+              boundaryGap: false,
+              // 坐标轴轴线相关设置
+              axisLine: {
+                // 坐标轴线线的颜色
+                lineStyle: {
+                  color: '#D0D0D0'
+                },
+                // X 轴或者 Y 轴的轴线是否在另一个轴的 0 刻度上，
+                // 只有在另一个轴为数值轴且包含 0 刻度时有效
+                onZero: false
+              },
+              // 是否显示竖线
+              splitLine: {
+                show: true,
+                lineStyle: {
+                  // 可以是数组
+                  color: '#333',
+                  type: 'dashed' // 虚线
+                }
+              },
+              // 横坐标默认间隔
+              splitNumber: 5,
+              // 坐标轴刻度最小值
+              min: 'dataMin',
+              // 坐标轴刻度最大值
+              max: 'dataMax',
+            },
+            // y轴
+            yAxis: {
+              // 是否是脱离 0 值比例
+              scale: true,
+              // 坐标轴在 grid 区域中的分隔区域，默认不显示
+              splitArea: {
+                // 是否显示分隔区域
+                show: true,
+                // 分隔区域的样式设置
+                areaStyle: {
+                  color: '#21202D'
+                }
+              },
+              // 是否显示横线
+              splitLine: {
+                show: true,
+                lineStyle: {
+                  // 可以是数组
+                  color: '#333',
+                  type: 'dashed' // 虚线
+                }
+              },
+              // 坐标轴轴线相关设置
+              axisLine: {
+                lineStyle: {
+                  // 坐标轴线线的颜色
+                  color: '#D0D0D0'
+                }
+              }
+            },
+
+            dataZoom: [
+              {
+                // 内置型数据区域缩放组件
+                type: 'inside',
+                start: 50,
+                end: 100
+              },
+              {
+                // 滑动条型数据区域缩放组件
+                type: 'slider',
+                show: false, //是否显示下方滚动条
+                y: '90%',
+                start: 50,
+                end: 100,
+              },
+            ],
+
+            // 系列列表。每个系列通过 type 决定自己的图表类型
+            series: [
+              {
+                type: 'candlestick', // K线图
+                data: data0.values,
+                itemStyle: {
+                  normal: {
+                    color: upColor,
+                    color0: downColor,
+                    borderColor: upBorderColor,
+                    borderColor0: downBorderColor
+                  }
+                },
+                // 标记点/图表标注
+                markPoint: {
+                  // 标记的图形
+                  // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
+                  symbol: 'circle',
+                  // 标记的大小，可以设置成诸如 10 这样单一的数字，
+                  symbolSize: 6,
+
+                  // 标注的数据数组
+                  data: [
+                    {
+                      name: '用户下单标点',
+                      coord: [currentTime, tsValue],
+                      // value: tsValue, // 是0或者null就显示0
+                      itemStyle: {
+                        normal: {color: 'rgb(255, 255, 255)'},
+                        // normal: {color: 'rgb(0, 255, 0)'}
+                      }
+                    },
+                  ]
+                },
+              },
+
+            ]
+          }
+
+          if (option && typeof option === "object") {
+            myChart.setOption(option, true)
+//                        var timestamp = (new Date()).getTime() * 1000
+            time = setInterval(function () {
+              $.ajax({
+                type: "POST",
+                url: "/index/firstk/gettime.html",
+                data: 'tick_start=' + arrid + '&name=' + cmp + '&time=' + numbers,
+                dataType: "json",
+                success: function (data) {
+                  for (var i = 0; i < data.data.length; i++) {
+                    if (data.data[i].stable == 'no') {
+                      data0.categoryData[data0.categoryData.length - 1] = fmtDate(data.data[i].tick_start / 1000)
+                      data0.values[data0.values.length - 1] = [parseFloat(
+                        data.data[i].open), parseFloat(data.data[i].close), parseFloat(data.data[i].low), parseFloat(data.data[i].high)]
+                      myChart.setOption(option, true)
+                    } else {
+                      data0.categoryData.push(fmtDate(data.data[i].tick_start / 1000))
+                      data0.values.push([parseFloat(data.data[i].open), parseFloat(
+                        data.data[i].close), parseFloat(data.data[i].low), parseFloat(data.data[i].high)])
+                      // 指定图表的配置项和数据
+                      option = {
+                        // 背景
+                        backgroundColor: '#21202D',
+                        // 提示文本
+                        tooltip: {
+                          // 触发类型
+                          trigger: 'axis',
+                          // 坐标轴指示器配置项
+                          axisPointer: {
+                            // 指示器类型
+                            type: 'cross',
+                            animation: true,
+                            lineStyle: {
+                              type: 'dashed' // 虚线
+                            }
+                          }
+                        },
+                        // 调整坐标系与边框的距离
+                        grid: {
+                          top: '10%',
+                          left: '14%',
+                          right: '5%',
+                          bottom: '6%'
+                        },
+                        // x轴
+                        xAxis: {
+                          // 坐标轴类型
+                          type: 'category',
+                          // 类目数据
+                          data: data0.categoryData,
+                          // 是否是脱离 0 值比例
+                          scale: true,
+                          // 坐标轴两边留白策略
+                          boundaryGap: false,
+                          // 坐标轴轴线相关设置
+                          axisLine: {
+                            // 坐标轴线线的颜色
+                            lineStyle: {
+                              color: '#D0D0D0'
+                            },
+                            // X 轴或者 Y 轴的轴线是否在另一个轴的 0 刻度上，
+                            // 只有在另一个轴为数值轴且包含 0 刻度时有效
+                            onZero: false
+                          },
+                          // 是否显示竖线
+                          splitLine: {
+                            show: true,
+                            lineStyle: {
+                              // 可以是数组
+                              color: '#333',
+                              type: 'dashed' // 虚线
+                            }
+                          },
+                          // 横坐标默认间隔
+                          splitNumber: 5,
+                          // 坐标轴刻度最小值
+                          min: 'dataMin',
+                          // 坐标轴刻度最大值
+                          max: 'dataMax',
+                        },
+                        // y轴
+                        yAxis: {
+                          // 是否是脱离 0 值比例
+                          scale: true,
+                          // 坐标轴在 grid 区域中的分隔区域，默认不显示
+                          splitArea: {
+                            // 是否显示分隔区域
+                            show: true,
+                            // 分隔区域的样式设置
+                            areaStyle: {
+                              color: '#21202D'
+                            }
+                          },
+                          // 是否显示横线
+                          splitLine: {
+                            show: true,
+                            lineStyle: {
+                              // 可以是数组
+                              color: '#333',
+                              type: 'dashed' // 虚线
+                            }
+                          },
+                          // 坐标轴轴线相关设置
+                          axisLine: {
+                            lineStyle: {
+                              // 坐标轴线线的颜色
+                              color: '#D0D0D0'
+                            }
+                          }
+                        },
+
+                        dataZoom: [
+                          {
+                            // 内置型数据区域缩放组件
+                            type: 'inside',
+                            start: 50,
+                            end: 100
+                          },
+                          {
+                            // 滑动条型数据区域缩放组件
+                            type: 'slider',
+                            show: false, //是否显示下方滚动条
+                            y: '90%',
+                            start: 50,
+                            end: 100,
+                          },
+                        ],
+
+                        // 系列列表。每个系列通过 type 决定自己的图表类型
+                        series: [
+                          {
+                            type: 'candlestick', // K线图
+                            data: data0.values,
+                            itemStyle: {
+                              normal: {
+                                color: upColor,
+                                color0: downColor,
+                                borderColor: upBorderColor,
+                                borderColor0: downBorderColor
+                              }
+                            },
+                            // 标记点/图表标注
+                            markPoint: {
+                              // 标注的文本
+                              /*label: {
+                                normal: {
+                                  formatter: function (param) {
+                                    // Math.round() 函数返回一个数字四舍五入后最接近的整数
+                                    return param != null ? Math.round(param.value) : ''
+                                  }
+                                }
+                              },*/
+                              // 标记的图形
+                              // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
+                              symbol: 'circle',
+                              // 标记的大小，可以设置成诸如 10 这样单一的数字，
+                              // 也可以用数组分开表示宽和高，例如 [20, 10] 表示标记宽为20，高为10
+                              symbolSize: '10',
+
+                              // 标注的数据数组
+                              data: [],
+                              tooltip: {
+                                formatter: function (param) {
+                                  return param.name + '<br>' + (param.data.coord || '')
+                                }
+                              }
+                            },
+                          },
+
+                        ]
+                      }
+                      myChart.setOption(option, true)
+                    }
+                    if (data.data[i].stable == 'no') {
+                      arrid = data.data[i].tick_start
+                    }
+                  }
+
+                }
+              })
+            }, 5000)
+          }
+        }
+      })
+    }
+
+    function timeshare() {
+      clearInterval(time)
+      clearInterval(twotime)
+      let cmp = name
+      data0.categoryData.length = 0
+      data0.values.length = 0
+      $.ajax({
+        type: "POST",
+        // url: "/index/firstk/getqution.html",
+        url: "fenshi.php",
+        data: 'name=' + cmp,
+        dataType: "json",
+        success: function (datas) {
+          var app = {}
+          option = null
+
+          function randomData(time, value) {
+            var date = new Date(time * 1000)//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+            var Y = date.getFullYear() + '-'
+            var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-'
+            var D = date.getDate() + ' '
+            var h = date.getHours() + ':'
+            var m = date.getMinutes() + ':'
+            var s = date.getSeconds()
+            return {
+              name: h + m + s,
+              value: [
+                h + m + s,
+                value
+              ]
+            }
+          }
+
+          var data = []
+          var now = +new Date(1997, 9, 3)
+          var oneDay = 24 * 3600 * 1000
+          var value = Math.random() * 1000
+          for (var i = 0; i < datas.data.length; i++) {
+            data.push(randomData(datas.data[i].tickcount, datas.data[i].price))
+          }
+
+          option = {
+            backgroundColor: '#21202D',
+            tooltip: {
+              trigger: 'axis',
+            },
+            xAxis: {
+              type: 'category',
+              axisLine: {lineStyle: {color: '#D0D0D0'}},
+              splitLine: {
+                show: false
+              }
+            },
+            yAxis: {
+              scale: true,
+              axisLine: {lineStyle: {color: '#D0D0D0'}},
+              splitLine: {
+                show: false
+              }
+            },
+            grid: {
+              top: '10%',
+              left: '14%',
+              right: '5%',
+              bottom: '6%'
+            },
+            series: [{
+              name: '行情价格',
+              type: 'line',
+              showSymbol: false,
+              hoverAnimation: false,
+              data: data,
+              itemStyle: {
+                normal: {
+                  color: '#D0D0D0'
+                }
+              },
+
+              // 标记点/图表标注
+              markPoint: {
+                // 标记的图形
+                // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
+                symbol: 'circle',
+                // 标记的大小，可以设置成诸如 10 这样单一的数字，
+                symbolSize: 6,
+
+                // 标注的数据数组
+                data: [
+                  {
+                    name: '用户下单标点',
+                    coord: [currentTime, tsValue],
+                    // value: tsValue, // 是0或者null就显示0
+                    itemStyle: {
+                      normal: {color: 'rgb(255, 255, 255)'},
+                      // normal: {color: 'rgb(0, 255, 0)'}
+                    }
+                  },
+                ]
+              },
+            }]
+          }
+
+          twotime = setInterval(function () {
+            $.ajax({
+              type: "POST",
+              url: "fenshi.php",
+              data: 'name=' + cmp,
+              dataType: "json",
+              success: function (datas) {
+                for (var i = 0; i < datas.data.length; i++) {
+                  //data.shift();
+                  data.push(randomData(datas.data[i].tickcount, datas.data[i].price))
+                }
+                myChart.setOption({
+                  series: [{
+                    data: data
+                  }]
+                })
+              }
+            })
+          }, 1000)
+
+          if (option && typeof option === "object") {
+            myChart.setOption(option, true)
+          }
+
+        }
+      })
+    }
+  }
+
+</script>
+
+<!--
+<script type="text/javascript">
+  window.onload = function () {
+    // 数据意义：开盘(open)，收盘(close)，最低(lowest)，最高(highest)
+    var dom = document.getElementById("container")
+    var myChart = echarts.init(dom)
+    var app = {}
+    var option = null
+    var upColor = '#ec0000'
+    var upBorderColor = '#8A0000'
+    var downColor = '#00da3c'
+    var downBorderColor = '#008F28'
+    /*时间的格式化: 把GMT时间格式化成2018/12/24 16:01:00*/
+    function fmtDate(timestamp) {
+      var date = new Date(timestamp * 1000)//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+      var Y = date.getFullYear() + '/'
+      var M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '/'
+      var D = date.getDate()
+      if (D < 10) {
+        D = '0' + D + ' '
+      } else {
+        D = D + ' '
+      }
+      var h = date.getHours()
+      if (h < 10) {
+        h = '0' + h + ":"
+      } else {
+        h = h + ":"
+      }
+      var m = date.getMinutes()
+      if (m < 10) {
+        m = '0' + m + ":"
+      } else {
+        m = m + ":"
+      }
+      var s = date.getSeconds()
+      if (s < 10) s = '0' + s
+      // return Y + M + D + h + m + s
+      return h + m + s
+      // console.log(Y + M + D + h + m + s)
+      // 输出结果：2018-12-24 16:01:00
+    }
+
+    function splitData(rawData) {
+      var categoryData = []
+      var values = []
+      for (var i = 0; i < rawData.length; i++) {
+        categoryData.push(rawData[i].splice(0, 1)[0])
+        values.push(rawData[i])
+      }
+      return {
+        categoryData: categoryData,
+        values: values
+      }
+    }
+
+    // 数据意义：开盘(open)，收盘(close)，最低(lowest)，最高(highest)
+    var data0 = splitData([])
+    var arrid
+
+    function calculateMA(dayCount) {
+      var result = []
+      for (var i = 0, len = data0.values.length; i < len; i++) {
+        if (i < dayCount) {
+          result.push('-')
+          continue
+        }
+        var sum = 0
+        for (var j = 0; j < dayCount; j++) {
+          sum += data0.values[i - j][1]
+        }
+        result.push(sum / dayCount)
+      }
+      return result
+    }
+
+    $.ajax({
+      type: "POST",
+      url: "test.php",
+      data: {data: '123'},
+      dataType: "json",
+      success: function (data) {
+        for (var i = 0; i < data.data.length; i++) {
+          data0.categoryData.push(fmtDate(data.data[i].tick_start / 1000))
+          data0.values.push(
+            [parseFloat(data.data[i].open), parseFloat(data.data[i].close),
+              parseFloat(data.data[i].low), parseFloat(data.data[i].high)])
+          // 判断数组的最后一个是否为yes
+          if (data.data[i].stable == 'yes') {
+            arrid = data.data[i].tick_start
+          }
+        }
+        // 分时图
+        /*var yAxisRawData = []
+        for (var i = 0, len=data.data.length; i < len; i++) {
+          data0.categoryData.push(fmtDate(data.data[i].tickcount))
+          // y轴原数据
+          yAxisRawData.push(
+            data.data[i].price
+          )
+        }*/
+        // y轴数据从小到大排序
+        /*var newArr = []
+        sort(yAxisRawData)
+        function sort(arr) {
+          return newArr = arr.concat().sort();
+        }*/
+
+        // 指定图表的配置项和数据
+        option = {
+          // 背景
+          backgroundColor: '#21202D',
+          // 提示文本
+          tooltip: {
+            // 触发类型
+            trigger: 'axis',
+            // 坐标轴指示器配置项
+            axisPointer: {
+              // 指示器类型
+              type: 'cross',
+              animation: true,
+              lineStyle: {
+                type: 'dashed' // 虚线
+              }
+            }
+          },
+          // 调整坐标系与边框的距离
+          grid: {
+            top: '10%',
+            left: '16%',
+            right: '5%',
+            bottom: '6%'
+          },
+          // x轴
+          xAxis: {
+            // 坐标轴类型
+            type: 'category',
+            // 类目数据
+            data: data0.categoryData,
+            // 是否是脱离 0 值比例
+            scale: true,
+            // 坐标轴两边留白策略
+            boundaryGap: false,
+            // 坐标轴轴线相关设置
+            axisLine: {
+              // 坐标轴线线的颜色
+              lineStyle: {
+                color: '#D0D0D0'
+              },
+              // X 轴或者 Y 轴的轴线是否在另一个轴的 0 刻度上，
+              // 只有在另一个轴为数值轴且包含 0 刻度时有效
+              onZero: false
+            },
+            // 是否显示竖线
+            splitLine: {
+              show: true,
+              lineStyle: {
+                // 可以是数组
+                color: '#333',
+                type: 'dashed' // 虚线
+              }
+            },
+            // 横坐标默认间隔
+            splitNumber: 5,
+            // 坐标轴刻度最小值
+            min: 'dataMin',
+            // 坐标轴刻度最大值
+            max: 'dataMax',
+
+            nameLocation: 'start',
+          },
+          // y轴
+          yAxis: {
+            // 是否是脱离 0 值比例
+            scale: true,
+            // 坐标轴在 grid 区域中的分隔区域，默认不显示
+            splitArea: {
+              // 是否显示分隔区域
+              show: true,
+              // 分隔区域的样式设置
+              areaStyle: {
+                color: '#21202D'
+              }
+            },
+            // 是否显示横线
+            splitLine: {
+              show: true,
+              lineStyle: {
+                // 可以是数组
+                color: '#333',
+                type: 'dashed' // 虚线
+              }
+            },
+            // 坐标轴轴线相关设置
+            axisLine: {
+              lineStyle: {
+                // 坐标轴线线的颜色
+                color: '#D0D0D0'
+              }
+            }
+          },
+
+          dataZoom: [
+            {
+              // 内置型数据区域缩放组件
+              type: 'inside',
+              start: 50,
+              end: 100
+            },
+            {
+              // 滑动条型数据区域缩放组件
+              type: 'slider',
+              show: false, //是否显示下方滚动条
+              y: '90%',
+              start: 50,
+              end: 100,
+            },
+          ],
+
+          // 系列列表。每个系列通过 type 决定自己的图表类型
+          series: [
+            {
+              name: '日K',
+              type: 'candlestick', // K线图
+              data: data0.values,
+              itemStyle: {
+                normal: {
+                  color: upColor,
+                  color0: downColor,
+                  borderColor: upBorderColor,
+                  borderColor0: downBorderColor
+                }
+              },
+              // 标记点/图表标注
+              markPoint: {
+                // 是否在缩放时保持该图形的长宽比
+                symbolKeepAspect: true,
+
+                // 标注的数据数组
+                data: [
+                  {
+                    name: '用户下单的时间',
+                    // 标注的坐标。坐标格式视系列的坐标系而定，可以是直角坐标系上的 x, y，
+                    // 记录用户订单的点
+                    coord: ['2019/1/2 13:47:00', 0.03486],
+                    value: 0.03486,
+                    itemStyle: {
+                      normal: {color: '#FD1050'}
+                    }
+                  },
+                ],
+              }
+            },
+            {
+              name: 'K',
+              type: 'line',
+              data: calculateMA(5),
+              smooth: true,
+              lineStyle: {
+                normal: {opacity: 0.5}
+              }
+            },
+          ]
+        }
+
+        // 分时线
+        /*option = {
+          backgroundColor: '#21202D',
+          // 提示文本
+          tooltip: {
+            // 触发类型
+            // trigger: 'axis',
+            /!*formatter: function (params) {
+              // console.log(1111, params)
+              params = params[0]
+              // console.log(params)
+              // params.value === NaN
+              return params.name + ' : ' + params.value
+            },*!/
+            // 坐标轴指示器配置项
+            axisPointer: {
+              // 指示器类型
+              type: 'cross',
+              animation: true,
+              lineStyle: {
+                type: 'dashed' // 虚线
+              }
+            }
+          },
+          // 调整坐标系与边框的距离
+          grid: {
+            top: '10%',
+            left: '18%',
+            right: '5%',
+            bottom: '8%'
+          },
+          xAxis: {
+            type: 'category',
+            data: data0.categoryData,
+            splitNumber: 5,
+            splitLine: {
+              show: true,
+              lineStyle: {
+                // 可以是数组
+                color: '#333',
+                type: 'dashed' // 虚线
+              }
+            },
+            // 坐标轴轴线相关设置
+            axisLine: {
+              lineStyle: {
+                // 坐标轴线线的颜色
+                color: '#D0D0D0'
+              }
+            },
+          },
+
+          yAxis: {
+            // type: 'category',
+            type: 'value',
+            // data: newArr,
+            splitLine: {
+              show: true,
+              lineStyle: {
+                // 可以是数组
+                color: '#333',
+                type: 'dashed' // 虚线
+              }
+            },
+            // 坐标轴轴线相关设置
+            axisLine: {
+              lineStyle: {
+                // 坐标轴线线的颜色
+                color: '#D0D0D0'
+              }
+            }
+          },
+          // 系列列表。每个系列通过 type 决定自己的图表类型
+          series: [
+            {
+              // name: 'K',
+              type: 'line',
+              // y轴
+              data: yAxisRawData,
+              lineStyle: {
+                normal: {opacity: 0.5}
+              },
+
+              // 标记点/图表标注
+              markPoint: {
+                // 标注的数据数组
+                data: [
+                  {
+                    name: '用户',
+                    // 标点(起点)
+                    coord: ['01:11:26', 0.03499],
+                    value: 0.03499,
+                    itemStyle: {
+                      normal: {color: '#FD1050'}
+                    }
+                  },
+                ],
+              },
+            }
+          ],
+
+          /!*dataZoom: [
+            {
+              // 内置型数据区域缩放组件
+              type: 'inside',
+              start: 50,
+              end: 100
+            },
+            {
+              // 滑动条型数据区域缩放组件
+              type: 'slider',
+              show: false, //是否显示下方滚动条
+              y: '90%',
+              start: 50,
+              end: 100,
+            },
+          ],*!/
+        }*/
+
+        // 定时器
+        /*setInterval(function () {
+
+          for (var i = 0; i < 5; i++) {
+            data.shift();
+            data.push(randomData());
+          }
+
+          myChart.setOption({
+            series: [{
+              data: data
+            }]
+          });
+        }, 1000);*/
+
+        if (option && typeof option === "object") {
+          myChart.setOption(option, true)
+          var timestamp = (new Date()).getTime() * 1000
+          setInterval(function () {
+            $.ajax({
+              type: "POST",
+              url: "time.php",
+              data: 'tick_start=' + arrid,
+              dataType: "json",
+              success: function (data) {
+                for (var i = 0; i < data.data.length; i++) {
+                  if (data.data[i].stable == 'no') {
+                    // console.log(11111111, data0.categoryData)
+                    data0.categoryData[data0.categoryData.length - 1] = fmtDate(data.data[i].tick_start / 1000)
+                    data0.values[data0.values.length - 1] = [parseFloat(
+                      data.data[i].open), parseFloat(data.data[i].close), parseFloat(data.data[i].low), parseFloat(data.data[i].high)]
+                    myChart.setOption(option, true)
+                  } else {
+                    data0.categoryData.push(fmtDate(data.data[i].tick_start / 1000))
+                    data0.values.push([parseFloat(data.data[i].open), parseFloat(
+                      data.data[i].close), parseFloat(data.data[i].low), parseFloat(data.data[i].high)])
+                    // 指定图表的配置项和数据
+                    option = {
+                      // 背景
+                      backgroundColor: '#21202D',
+                      // 提示文本
+                      tooltip: {
+                        // 触发类型
+                        trigger: 'axis',
+                        // 坐标轴指示器配置项
+                        axisPointer: {
+                          // 指示器类型
+                          type: 'cross',
+                          animation: true,
+                          lineStyle: {
+                            type: 'dashed' // 虚线
+                          }
+                        }
+                      },
+                      // 调整坐标系与边框的距离
+                      grid: {
+                        top: '10%',
+                        left: '16%',
+                        right: '5%',
+                        bottom: '6%'
+                      },
+                      // x轴
+                      xAxis: {
+                        // 坐标轴类型
+                        type: 'category',
+                        // 类目数据
+                        data: data0.categoryData,
+                        // 是否是脱离 0 值比例
+                        scale: true,
+                        // 坐标轴两边留白策略
+                        boundaryGap: false,
+                        // 坐标轴轴线相关设置
+                        axisLine: {
+                          // 坐标轴线线的颜色
+                          lineStyle: {
+                            color: '#D0D0D0'
+                          },
+                          // X 轴或者 Y 轴的轴线是否在另一个轴的 0 刻度上，
+                          // 只有在另一个轴为数值轴且包含 0 刻度时有效
+                          onZero: false
+                        },
+                        // 是否显示竖线
+                        splitLine: {
+                          show: true,
+                          lineStyle: {
+                            // 可以是数组
+                            color: '#333',
+                            type: 'dashed' // 虚线
+                          }
+                        },
+                        // 横坐标默认间隔
+                        splitNumber: 5,
+                        // 坐标轴刻度最小值
+                        min: 'dataMin',
+                        // 坐标轴刻度最大值
+                        max: 'dataMax',
+
+                        nameLocation: 'start',
+                      },
+                      // y轴
+                      yAxis: {
+                        // 是否是脱离 0 值比例
+                        scale: true,
+                        // 坐标轴在 grid 区域中的分隔区域，默认不显示
+                        splitArea: {
+                          // 是否显示分隔区域
+                          show: true,
+                          // 分隔区域的样式设置
+                          areaStyle: {
+                            color: '#21202D'
+                          }
+                        },
+                        // 是否显示横线
+                        splitLine: {
+                          show: true,
+                          lineStyle: {
+                            // 可以是数组
+                            color: '#333',
+                            type: 'dashed' // 虚线
+                          }
+                        },
+                        // 坐标轴轴线相关设置
+                        axisLine: {
+                          lineStyle: {
+                            // 坐标轴线线的颜色
+                            color: '#D0D0D0'
+                          }
+                        }
+                      },
+
+                      dataZoom: [
+                        {
+                          // 内置型数据区域缩放组件
+                          type: 'inside',
+                          start: 50,
+                          end: 100
+                        },
+                        {
+                          // 滑动条型数据区域缩放组件
+                          type: 'slider',
+                          show: false, //是否显示下方滚动条
+                          y: '90%',
+                          start: 50,
+                          end: 100,
+                        },
+                      ],
+
+                      // 系列列表。每个系列通过 type 决定自己的图表类型
+                      series: [
+                        {
+                          name: '日K',
+                          type: 'candlestick', // K线图
+                          data: data0.values,
+                          /*itemStyle: {
+                            normal: {
+                              color: upColor,
+                              color0: downColor,
+                              borderColor: upBorderColor,
+                              borderColor0: downBorderColor
+                            }
+                          },*/
+                          // 标记点/图表标注
+                          markPoint: {
+                            // 标记相对于原本位置的偏移
+                            // symbolOffset: [500, 0],
+                            // 是否在缩放时保持该图形的长宽比
+                            symbolKeepAspect: true,
+
+                            // 标注的数据数组
+                            data: [
+                              {
+                                name: '用户下单的时间',
+                                // 标注的坐标。坐标格式视系列的坐标系而定，可以是直角坐标系上的 x, y，
+                                // 记录用户订单的点
+                                coord: ['2018/12/29 21:30:00', 0.03486],
+                                value: 0.03486,
+                                itemStyle: {
+                                  normal: {color: '#FD1050'}
+                                }
+                              },
+                            ],
+                          }
+                        },
+                        /*{
+                          name: 'K',
+                          type: 'line',
+                          data: calculateMA(5),
+                          smooth: true,
+                          lineStyle: {
+                            normal: {opacity: 0.5}
+                          }
+                        },*/
+                      ]
+                    }
+                    myChart.setOption(option, true)
+                  }
+                  if (data.data[i].stable == 'yes') {
+                    arrid = data.data[i].tick_start
+                  }
+                }
+
+              }
+            })
+          }, 1000)
+        }
+      }
+    })
+
+    // 分时的切换
+    timeShare(timeShareTab)
+
+    function timeShare(activeList) {
+      for (let m = 0, len = activeList.length; m < len; m++) {
+        activeList[m].onclick = function () {
+          refreshData(m)
+          for (let n = 0; n < len; n++) {
+            activeList[n].classList.remove("active")
+          }
+          activeList[m].classList.add("active")
+        }
+      }
+    }
+
+    // 更新数据
+    function refreshData(num) {
+      $.ajax({
+        type: "POST",
+        url: "test.php",
+        data: 'time=' + num,
+        dataType: "json",
+        success: function (data) {
+          for (var i = 0; i < data.data.length; i++) {
+            data0.categoryData.push(fmtDate(data.data[i].tick_start / 1000))
+            data0.values.push(
+              [parseFloat(data.data[i].open), parseFloat(data.data[i].close),
+                parseFloat(data.data[i].low), parseFloat(data.data[i].high)])
+            // 判断数组的最后一个是否为yes
+            if (data.data[i].stable == 'yes') {
+              arrid = data.data[i].tick_start
+            }
+          }
+          // 指定图表的配置项和数据
+          option = {
+            // 背景
+            backgroundColor: '#21202D',
+            // 提示文本
+            tooltip: {
+              // 触发类型
+              trigger: 'axis',
+              // 坐标轴指示器配置项
+              axisPointer: {
+                // 指示器类型
+                type: 'cross',
+                animation: true,
+                lineStyle: {
+                  type: 'dashed' // 虚线
+                }
+              }
+            },
+            // 调整坐标系与边框的距离
+            grid: {
+              top: '10%',
+              left: '14%',
+              right: '5%',
+              bottom: '6%'
+            },
+            // x轴
+            xAxis: {
+              // 坐标轴类型
+              type: 'category',
+              // 类目数据
+              data: data0.categoryData,
+              // 是否是脱离 0 值比例
+              scale: true,
+              // 坐标轴两边留白策略
+              boundaryGap: false,
+              // 坐标轴轴线相关设置
+              axisLine: {
+                // 坐标轴线线的颜色
+                lineStyle: {
+                  color: '#D0D0D0'
+                },
+                // X 轴或者 Y 轴的轴线是否在另一个轴的 0 刻度上，
+                // 只有在另一个轴为数值轴且包含 0 刻度时有效
+                onZero: false
+              },
+              // 是否显示竖线
+              splitLine: {
+                show: true,
+                lineStyle: {
+                  // 可以是数组
+                  color: '#333',
+                  type: 'dashed' // 虚线
+                }
+              },
+              // 横坐标默认间隔
+              splitNumber: 5,
+              // 坐标轴刻度最小值
+              min: 'dataMin',
+              // 坐标轴刻度最大值
+              max: 'dataMax',
+
+              nameLocation: 'start',
+            },
+            // y轴
+            yAxis: {
+              // 是否是脱离 0 值比例
+              scale: true,
+              // 坐标轴在 grid 区域中的分隔区域，默认不显示
+              splitArea: {
+                // 是否显示分隔区域
+                show: true,
+                // 分隔区域的样式设置
+                areaStyle: {
+                  color: '#21202D'
+                }
+              },
+              // 是否显示横线
+              splitLine: {
+                show: true,
+                lineStyle: {
+                  // 可以是数组
+                  color: '#333',
+                  type: 'dashed' // 虚线
+                }
+              },
+              // 坐标轴轴线相关设置
+              axisLine: {
+                lineStyle: {
+                  // 坐标轴线线的颜色
+                  color: '#D0D0D0'
+                }
+              }
+            },
+
+            dataZoom: [
+              {
+                // 内置型数据区域缩放组件
+                type: 'inside',
+                start: 50,
+                end: 100
+              },
+              {
+                // 滑动条型数据区域缩放组件
+                type: 'slider',
+                show: false, //是否显示下方滚动条
+                y: '90%',
+                start: 50,
+                end: 100,
+              },
+            ],
+
+            // 系列列表。每个系列通过 type 决定自己的图表类型
+            series: [
+              {
+                name: '日K',
+                type: 'candlestick', // K线图
+                data: data0.values,
+                itemStyle: {
+                  normal: {
+                    color: upColor,
+                    color0: downColor,
+                    borderColor: upBorderColor,
+                    borderColor0: downBorderColor
+                  }
+                },
+                // 标记点/图表标注
+                markPoint: {
+                  // 标记相对于原本位置的偏移
+                  // symbolOffset: [500, 0],
+                  // 是否在缩放时保持该图形的长宽比
+                  symbolKeepAspect: true,
+
+                  // 标注的数据数组
+                  data: [
+                    {
+                      name: 'XX标点',
+                      // 标注的坐标。坐标格式视系列的坐标系而定，可以是直角坐标系上的 x, y，
+                      // 也可以是极坐标系上的 radius, angle。例如 [121, 2323]、['aa', 998]。
+                      // 记录用户订单的点
+                      coord: ['20:18:00', 0.03471],
+                      value: 0.03471,
+                      itemStyle: {
+                        normal: {color: '#FD1050'}
+                      }
+                    },
+                    // 最大
+                    // {
+                    //   name: 'highest value',
+                    //   type: 'max',
+                    //   valueDim: 'highest'
+                    // },
+                    // 最小
+                    // {
+                    //   name: 'lowest value',
+                    //   type: 'min',
+                    //   valueDim: 'lowest'
+                    // },
+                    // 平均值
+                    // {
+                    //   name: 'average value on close',
+                    //   type: 'average',
+                    //   valueDim: 'close'
+                    // }
+                  ],
+                }
+              },
+              {
+                name: 'K',
+                type: 'line',
+                data: calculateMA(5),
+                smooth: true,
+                lineStyle: {
+                  normal: {opacity: 0.5}
+                }
+              },
+            ]
+          }
+
+          if (option && typeof option === "object") {
+            myChart.setOption(option, true)
+            var timestamp = (new Date()).getTime() * 1000
+            setInterval(function () {
+              $.ajax({
+                type: "POST",
+                url: "time.php",
+                data: 'tick_start=' + arrid,
+                dataType: "json",
+                success: function (data) {
+                  for (var i = 0; i < data.data.length; i++) {
+                    if (data.data[i].stable == 'no') {
+                      data0.categoryData[data0.categoryData.length - 1] = fmtDate(data.data[i].tick_start / 1000)
+                      data0.values[data0.values.length - 1] = [parseFloat(
+                        data.data[i].open), parseFloat(data.data[i].close), parseFloat(data.data[i].low), parseFloat(data.data[i].high)]
+                      myChart.setOption(option, true)
+                    } else {
+                      data0.categoryData.push(fmtDate(data.data[i].tick_start / 1000))
+                      data0.values.push([parseFloat(data.data[i].open), parseFloat(
+                        data.data[i].close), parseFloat(data.data[i].low), parseFloat(data.data[i].high)])
+                      // 指定图表的配置项和数据
+                      option = {
+                        // 背景
+                        backgroundColor: '#21202D',
+                        // 提示文本
+                        tooltip: {
+                          // 触发类型
+                          trigger: 'axis',
+                          // 坐标轴指示器配置项
+                          axisPointer: {
+                            // 指示器类型
+                            type: 'cross',
+                            animation: true,
+                            lineStyle: {
+                              type: 'dashed' // 虚线
+                            }
+                          }
+                        },
+                        // 调整坐标系与边框的距离
+                        grid: {
+                          top: '10%',
+                          left: '14%',
+                          right: '5%',
+                          bottom: '6%'
+                        },
+                        // x轴
+                        xAxis: {
+                          // 坐标轴类型
+                          type: 'category',
+                          // 类目数据
+                          data: data0.categoryData,
+                          // 是否是脱离 0 值比例
+                          scale: true,
+                          // 坐标轴两边留白策略
+                          boundaryGap: false,
+                          // 坐标轴轴线相关设置
+                          axisLine: {
+                            // 坐标轴线线的颜色
+                            lineStyle: {
+                              color: '#D0D0D0'
+                            },
+                            // X 轴或者 Y 轴的轴线是否在另一个轴的 0 刻度上，
+                            // 只有在另一个轴为数值轴且包含 0 刻度时有效
+                            onZero: false
+                          },
+                          // 是否显示竖线
+                          splitLine: {
+                            show: true,
+                            lineStyle: {
+                              // 可以是数组
+                              color: '#333',
+                              type: 'dashed' // 虚线
+                            }
+                          },
+                          // 横坐标默认间隔
+                          splitNumber: 5,
+                          // 坐标轴刻度最小值
+                          min: 'dataMin',
+                          // 坐标轴刻度最大值
+                          max: 'dataMax',
+                        },
+                        // y轴
+                        yAxis: {
+                          // 是否是脱离 0 值比例
+                          scale: true,
+                          // 坐标轴在 grid 区域中的分隔区域，默认不显示
+                          splitArea: {
+                            // 是否显示分隔区域
+                            show: true,
+                            // 分隔区域的样式设置
+                            areaStyle: {
+                              color: '#21202D'
+                            }
+                          },
+                          // 是否显示横线
+                          splitLine: {
+                            show: true,
+                            lineStyle: {
+                              // 可以是数组
+                              color: '#333',
+                              type: 'dashed' // 虚线
+                            }
+                          },
+                          // 坐标轴轴线相关设置
+                          axisLine: {
+                            lineStyle: {
+                              // 坐标轴线线的颜色
+                              color: '#D0D0D0'
+                            }
+                          }
+                        },
+
+                        dataZoom: [
+                          {
+                            // 内置型数据区域缩放组件
+                            type: 'inside',
+                            start: 50,
+                            end: 100
+                          },
+                          {
+                            // 滑动条型数据区域缩放组件
+                            type: 'slider',
+                            show: false, //是否显示下方滚动条
+                            y: '90%',
+                            start: 50,
+                            end: 100,
+                          },
+                        ],
+
+                        // 系列列表。每个系列通过 type 决定自己的图表类型
+                        series: [
+                          {
+                            name: '日K',
+                            type: 'candlestick', // K线图
+                            data: data0.values,
+                            itemStyle: {
+                              normal: {
+                                color: upColor,
+                                color0: downColor,
+                                borderColor: upBorderColor,
+                                borderColor0: downBorderColor
+                              }
+                            },
+                            // 标记点/图表标注
+                            markPoint: {
+                              // 标注的文本
+                              /*label: {
+                                normal: {
+                                  formatter: function (param) {
+                                    // Math.round() 函数返回一个数字四舍五入后最接近的整数
+                                    return param != null ? Math.round(param.value) : ''
+                                  }
+                                }
+                              },*/
+                              // 标记的图形
+                              // 'circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow', 'none'
+                              symbol: 'circle',
+                              // 标记的大小，可以设置成诸如 10 这样单一的数字，
+                              // 也可以用数组分开表示宽和高，例如 [20, 10] 表示标记宽为20，高为10
+                              symbolSize: '10',
+
+                              // 标注的数据数组
+                              data: [],
+                              tooltip: {
+                                formatter: function (param) {
+                                  return param.name + '<br>' + (param.data.coord || '')
+                                }
+                              }
+                            },
+                          },
+                          {
+                            name: 'K',
+                            type: 'line',
+                            data: calculateMA(5),
+                            smooth: true,
+                            lineStyle: {
+                              normal: {opacity: 0.5}
+                            }
+                          },
+                        ]
+                      }
+                      myChart.setOption(option, true)
+                    }
+                    if (data.data[i].stable == 'yes') {
+                      arrid = data.data[i].tick_start
+                    }
+                  }
+
+                }
+              })
+            }, 500)
+          }
+        }
+      })
+    }
+  }
+
+</script>-->

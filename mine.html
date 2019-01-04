@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, minimal-ui">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="format-detection" content="telephone=no" />  <!--去除iphone微信下浏览器中数字下划线-->
+    <title>我的</title>
+    <link rel="stylesheet" href="css/index.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.bootcss.com/fastclick/1.0.6/fastclick.min.js"></script>
+</head>
+<body class="bg-fa">
+<div id="app" v-cloak>
+    <div class="my-header">
+        <div class="my-photo">
+            <img src="images/C2C_img.png">
+        </div>
+        <div class="my-detail">
+            <div class="my-id">
+                1541512415
+            </div>
+            <a class="my-edit">
+                查看或编辑个人资料
+            </a>
+        </div>
+    </div>
+    <div class="my-list">
+        <ul>
+            <li >
+                <a href="assets.html">
+                    <div class="my-list-item my-list-text">
+                        <i class="icon icon-wallet"></i>
+                        <span>我的资产</span>
+                    </div>
+                    <div class="my-list-item my-balance">余额500.33BTH</div>
+                    <span class="my-caret"></span>
+                </a>
+            </li>
+            <li >
+                <a href="assets.html">
+                    <div class="my-list-item my-list-text">
+                        <i class="icon icon-wallet"></i>
+                        <span>我的资产</span>
+                    </div>
+                    <div class="my-list-item my-balance">余额500.33BTH</div>
+                    <span class="my-caret"></span>
+                </a>
+            </li>
+            <li >
+                <a href="invite.html">
+                    <div class="my-list-item my-list-text">
+                        <i class="icon icon-invite"></i>
+                        <span>我的邀请</span>
+                    </div>
+                    <span class="my-caret"></span>
+                </a>
+            </li>
+            <li >
+                <a href="brokerage.html">
+                    <div class="my-list-item my-list-text">
+                        <i class="icon icon-commission"></i>
+                        <span>我的佣金</span>
+                    </div>
+                    <span class="my-caret"></span>
+                </a>
+            </li>
+            <li >
+                <a href="recharge.html">
+                    <div class="my-list-item my-list-text">
+                        <i class="icon icon-pay"></i>
+                        <span>充值</span>
+                    </div>
+                    <span class="my-caret"></span>
+                </a>
+            </li>
+        </ul>
+        <div class="C2C-line"></div>
+        <div class="exit">
+            <div class="my-list-item my-list-text">
+                <i class="icon icon-exit"></i>
+                <span>退出登录</span>
+            </div>
+        </div>
+    </div>
+    <div class="nav">
+        <a class="nav-item" v-for='(item,index) in nav_list' :href="item.href" :class="3 ==index?'nav-active':''">
+            <i class="icon" :class="item.icon"></i>
+            <span class="nav-text">{{item.text}}</span>
+        </a>
+    </div>
+</div>
+<script type="text/javascript" src="js/common.js"></script>
+
+<script type="text/javascript">
+    var app=new Vue({
+        el:"#app",
+        data:{
+            nav_list: [
+                {
+                    icon: "icon-home",
+                    text: "主页",
+                    href: "index.html"
+                },
+                {
+                    icon: "icon-trade",
+                    text: "交易",
+                    href: "trade.html"
+                },
+                {
+                    icon: "icon-c2c",
+                    text: "C2C",
+                    href: "C2C.html"
+                },
+                {
+                    icon: "icon-mine",
+                    text: "我的",
+                    href: "mine.html"
+                }
+            ],
+            C2C_list:[
+                {
+                    name:"张三",
+                    img:"images/c2c_img.png",
+                    wechat:"topone121"
+                },
+                {
+                    name:"张三",
+                    img:"images/c2c_img.png",
+                    wechat:"topone122"
+                },
+                {
+                    name:"张三",
+                    img:"images/c2c_img.png",
+                    wechat:"topone123"
+                }
+            ]
+        },
+        methods:{
+            copy:function () {
+                var clipboard = new Clipboard('.copy');
+                clipboard.on('success', function(e) {
+                });
+                clipboard.on('error', function(e) {
+                    alert("复制失败,请手工选择复制的内容")
+                });
+            }
+        }
+    })
+</script>
+</body>
+</html>
